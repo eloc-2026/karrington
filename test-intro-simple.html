@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Intro Test</title>
+</head>
+<body>
+  <h1>Open console (F12) and click the button</h1>
+  <button id="test" style="padding: 20px; font-size: 20px;">TEST INTRO</button>
+
+  <script type="module">
+    import { IntroSequence } from './src/ui/IntroSequence.js';
+
+    document.getElementById('test').onclick = () => {
+      console.log('Button clicked!');
+
+      // Show black screen for 6 seconds first
+      const blackScreen = document.createElement('div');
+      blackScreen.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: #000;
+        z-index: 10000;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+      `;
+      blackScreen.textContent = 'Waiting 6 seconds...';
+      document.body.appendChild(blackScreen);
+      console.log('Black screen added, waiting 6 seconds...');
+
+      setTimeout(() => {
+        blackScreen.remove();
+        console.log('6 seconds done, showing intro...');
+
+        IntroSequence.show(null, () => {
+          alert('Intro completed!');
+        });
+      }, 6000);
+    };
+  </script>
+</body>
+</html>

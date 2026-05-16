@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movement Test</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #0a0a0a;
+      color: #0f0;
+      font-family: monospace;
+    }
+
+    #test-player {
+      position: absolute;
+      width: 32px;
+      height: 48px;
+      background: white;
+      border: 2px solid #0f0;
+      left: 100px;
+      top: 300px;
+    }
+
+    #info {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: rgba(0,0,0,0.9);
+      padding: 20px;
+      border: 2px solid #0f0;
+    }
+  </style>
+</head>
+<body>
+  <div id="info">
+    <h2>🎮 MOVEMENT TEST</h2>
+    <p>Press A/D or Arrow Keys</p>
+    <div id="status"></div>
+  </div>
+
+  <div id="test-player"></div>
+
+  <script>
+    const player = document.getElementById('test-player');
+    const status = document.getElementById('status');
+
+    let x = 100;
+    let y = 300;
+    let velocityX = 0;
+
+    const keys = new Set();
+
+    window.addEventListener('keydown', (e) => {
+      console.log('Key down:', e.key);
+      keys.add(e.key);
+      updateStatus();
+    });
+
+    window.addEventListener('keyup', (e) => {
+      console.log('Key up:', e.key);
+      keys.delete(e.key);
+      updateStatus();
+    });
+
+    function updateStatus() {
+      status.innerHTML = `
+        <div>Keys pressed: ${Array.from(keys).join(', ') || 'none'}</div>
+        <div>Position: ${Math.round(x)}, ${Math.round(y)}</div>
+        <div>Velocity: ${velocityX}</div>
+      `;
+    }
+
+    function update() {
+      // Handle input
+      if (keys.has('a') || keys.has('A') || keys.has('ArrowLeft')) {
+        velocityX = -5;
+      } else if (keys.has('d') || keys.has('D') || keys.has('ArrowRight')) {
+        velocityX = 5;
+      } else {
+        velocityX = 0;
+      }
+
+      // Update position
+      x += velocityX;
+
+      // Render
+      player.style.left = x + 'px';
+      player.style.top = y + 'px';
+
+      updateStatus();
+      requestAnimationFrame(update);
+    }
+
+    update();
+
+    console.log('✅ Test page loaded. Press A/D to move.');
+  </script>
+</body>
+</html>

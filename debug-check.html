@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Debug Check</title>
+</head>
+<body>
+  <h1>Quick Physics Test</h1>
+  <pre id="output"></pre>
+
+  <script type="module">
+    import { Player } from './src/entities/Player.js';
+    import { Platform } from './src/entities/Platform.js';
+    import { ImprovedPhysicsSystem } from './src/systems/ImprovedPhysicsSystem.js';
+    import { ImprovedCollisionSystem } from './src/systems/ImprovedCollisionSystem.js';
+
+    const output = document.getElementById('output');
+    let log = '';
+
+    function print(msg) {
+      log += msg + '\n';
+      output.textContent = log;
+      console.log(msg);
+    }
+
+    print('=== PHYSICS DEBUG TEST ===\n');
+
+    // Create entities
+    const player = new Player(100, 503);
+    const platform = new Platform(0, 550, 400, 50);
+    const physics = new ImprovedPhysicsSystem();
+    const collision = new ImprovedCollisionSystem();
+
+    print(`Player created: pos=(${player.position.x}, ${player.position.y}) size=${player.size.width}x${player.size.height}`);
+    print(`Platform created: pos=(${platform.position.x}, ${platform.position.y}) size=${platform.size.width}x${platform.size.height}`);
+    print(`Player type: ${player.type}`);
+    print(`Platform type: ${platform.type}`);
+    print(`Player hasGravity: ${player.hasGravity}`);
+    print(`Player hasCollision: ${player.hasCollision}`);
+    print(`Platform hasCollision: ${platform.hasCollision}`);
+
+    print(`\nInitial player grounded: ${player.isGrounded}`);
+    print(`Initial player velocity: (${player.velocity.x}, ${player.velocity.y})`);
+
+    // Run collision
+    print('\n--- Running collision check ---');
+    collision.update([player, platform], [platform]);
+
+    print(`After collision: grounded=${player.isGrounded}, pos=(${Math.round(player.position.x)}, ${Math.round(player.position.y)})`);
+    print(`After collision: velocity=(${player.velocity.x}, ${player.velocity.y})`);
+
+    // Run physics
+    print('\n--- Running physics update ---');
+    physics.update(player, 1/60);
+
+    print(`After physics: grounded=${player.isGrounded}, pos=(${Math.round(player.position.x)}, ${Math.round(player.position.y)})`);
+    print(`After physics: velocity=(${player.velocity.x}, ${player.velocity.y})`);
+
+    // Simulate 60 frames
+    print('\n--- Simulating 60 frames (1 second) ---');
+    for (let i = 0; i < 60; i++) {
+      physics.update(player, 1/60);
+      collision.update([player, platform], [platform]);
+    }
+
+    print(`After 60 frames: grounded=${player.isGrounded}, pos=(${Math.round(player.position.x)}, ${Math.round(player.position.y)})`);
+    print(`After 60 frames: velocity=(${player.velocity.x}, ${player.velocity.y})`);
+
+    if (player.isGrounded && player.position.y === 502) {
+      print('\n✅ SUCCESS: Player is grounded and stable!');
+    } else {
+      print('\n❌ FAILED: Player is not grounded or moved!');
+      print(`   Expected: Y=502, grounded=true`);
+      print(`   Got: Y=${player.position.y}, grounded=${player.isGrounded}`);
+    }
+  </script>
+</body>
+</html>

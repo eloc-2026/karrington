@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skeleton Model Viewer - Elemental Platformer</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Courier New', monospace;
+      background: #0a0a12;
+      color: #eee;
+      overflow: hidden;
+    }
+
+    .info-overlay {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(20, 20, 30, 0.9);
+      padding: 20px;
+      border-radius: 8px;
+      border: 2px solid #00ffaa;
+      max-width: 350px;
+      z-index: 100;
+    }
+
+    h1 {
+      margin: 0 0 15px 0;
+      color: #00ffaa;
+      font-size: 24px;
+    }
+
+    .feature-list {
+      list-style: none;
+      padding: 0;
+      margin: 15px 0;
+    }
+
+    .feature-list li {
+      padding: 5px 0;
+      border-bottom: 1px solid #333;
+    }
+
+    .feature-list li:before {
+      content: "💀 ";
+      margin-right: 8px;
+    }
+
+    .controls {
+      background: rgba(20, 20, 30, 0.9);
+      padding: 15px;
+      border-radius: 8px;
+      border: 2px solid #8844ff;
+      margin-top: 15px;
+    }
+
+    .controls h3 {
+      margin: 0 0 10px 0;
+      color: #8844ff;
+      font-size: 16px;
+    }
+
+    .control-item {
+      padding: 5px 0;
+      font-size: 14px;
+    }
+
+    .label {
+      display: inline-block;
+      width: 120px;
+      color: #00ffaa;
+    }
+
+    #game-container {
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .stats {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(20, 20, 30, 0.9);
+      padding: 15px;
+      border-radius: 8px;
+      border: 2px solid #ffaa00;
+    }
+
+    .stat-item {
+      margin: 8px 0;
+      font-size: 14px;
+    }
+
+    .stat-value {
+      color: #ffaa00;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="info-overlay">
+    <h1>🦴 Skeleton Model</h1>
+    <p style="color: #aaa;">White skeleton with scrap clothing</p>
+
+    <ul class="feature-list">
+      <li>White bones (realistic color)</li>
+      <li>Full skeleton anatomy</li>
+      <li>Arms with hands</li>
+      <li>Legs with feet</li>
+      <li>Ribcage & spine visible</li>
+      <li>Scrap clothing & hood</li>
+      <li>Glowing cyan eyes</li>
+    </ul>
+
+    <div class="controls">
+      <h3>🎮 Controls</h3>
+      <div class="control-item">
+        <span class="label">Move:</span> A/D or ← →
+      </div>
+      <div class="control-item">
+        <span class="label">Jump:</span> W or Space
+      </div>
+      <div class="control-item">
+        <span class="label">Attack:</span> Z
+      </div>
+    </div>
+
+    <p style="margin-top: 15px; color: #888; font-size: 12px;">
+      The skeleton is now much more detailed with separate limbs,
+      white bones, and tattered scrap clothing!
+    </p>
+  </div>
+
+  <div class="stats">
+    <h3 style="margin: 0 0 10px 0; color: #ffaa00;">📊 Model Stats</h3>
+    <div class="stat-item">
+      <span>Bone Parts:</span> <span class="stat-value">22</span>
+    </div>
+    <div class="stat-item">
+      <span>Clothing:</span> <span class="stat-value">9</span>
+    </div>
+    <div class="stat-item">
+      <span>Eyes:</span> <span class="stat-value">2 + glow</span>
+    </div>
+    <div class="stat-item">
+      <span>Total Meshes:</span> <span class="stat-value">~33</span>
+    </div>
+  </div>
+
+  <div id="game-container"></div>
+
+  <script type="module">
+    import { Game } from './src/core/Game.js';
+
+    console.log('🦴 Skeleton Model Viewer starting...');
+
+    // Create game instance
+    const container = document.getElementById('game-container');
+    window.game = new Game(container);
+    window.game.init();
+
+    // Auto-start game after brief delay
+    setTimeout(() => {
+      window.game.startNewGame();
+      console.log('✅ Skeleton model loaded! Move around to see it in action.');
+    }, 500);
+
+    // Log info about the model
+    setTimeout(() => {
+      if (window.game.player && window.game.player.mesh) {
+        console.log('🦴 Skeleton mesh details:');
+        console.log('  - Total children:', window.game.player.mesh.children.length);
+        console.log('  - Bones are white (0xeeeeee)');
+        console.log('  - Clothing is dark scrap material');
+        console.log('  - Eyes glow cyan (0x00ffaa)');
+        console.log('👀 Look at the character - it\'s a detailed skeleton now!');
+      }
+    }, 3000);
+  </script>
+</body>
+</html>

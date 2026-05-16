@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🪦 Graveyard Skeleton Viewer</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Courier New', monospace;
+      background: #000;
+      color: #eee;
+      overflow: hidden;
+    }
+
+    .overlay {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(10, 10, 15, 0.95);
+      padding: 25px;
+      border-radius: 10px;
+      border: 3px solid #00ff88;
+      max-width: 400px;
+      z-index: 100;
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+    }
+
+    h1 {
+      margin: 0 0 10px 0;
+      color: #00ff88;
+      font-size: 28px;
+      text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+    }
+
+    .subtitle {
+      color: #888;
+      font-size: 14px;
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+
+    .section {
+      margin: 20px 0;
+      padding: 15px;
+      background: rgba(20, 20, 25, 0.8);
+      border-radius: 8px;
+      border-left: 3px solid #00ff88;
+    }
+
+    .section h2 {
+      margin: 0 0 10px 0;
+      color: #00ff88;
+      font-size: 18px;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .feature {
+      padding: 8px;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    .feature:before {
+      content: "💀 ";
+    }
+
+    .controls {
+      background: rgba(20, 20, 30, 0.9);
+      padding: 12px;
+      border-radius: 6px;
+      margin: 15px 0;
+    }
+
+    .control-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid #333;
+    }
+
+    .control-row:last-child {
+      border-bottom: none;
+    }
+
+    .key {
+      background: #00ff88;
+      color: #000;
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-weight: bold;
+      font-size: 12px;
+    }
+
+    .action {
+      color: #aaa;
+      font-size: 13px;
+    }
+
+    .highlight {
+      color: #00ff88;
+      font-weight: bold;
+    }
+
+    #game-container {
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .pulse {
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    .atmosphere-info {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(10, 10, 15, 0.95);
+      padding: 20px;
+      border-radius: 10px;
+      border: 3px solid #6633aa;
+      box-shadow: 0 0 20px rgba(102, 51, 170, 0.3);
+    }
+
+    .atmosphere-info h3 {
+      margin: 0 0 10px 0;
+      color: #6633aa;
+      font-size: 16px;
+    }
+
+    .atmosphere-item {
+      padding: 5px 0;
+      font-size: 13px;
+      color: #ccc;
+    }
+
+    .atmosphere-item:before {
+      content: "🪦 ";
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <h1>🦴 ORGANIC SKELETON</h1>
+    <div class="subtitle">Real skeletal anatomy with graveyard atmosphere</div>
+
+    <div class="section">
+      <h2>🦴 Skeleton Features</h2>
+      <div class="feature-grid">
+        <div class="feature">Aged bones</div>
+        <div class="feature">Eye sockets</div>
+        <div class="feature">Curved ribs</div>
+        <div class="feature">Spine vertebrae</div>
+        <div class="feature">Ball joints</div>
+        <div class="feature">Long bones</div>
+        <div class="feature">Skull & teeth</div>
+        <div class="feature">Tattered cloth</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🪦 Graveyard Elements</h2>
+      <div style="font-size: 13px; line-height: 1.8;">
+        ✓ <span class="highlight">30</span> Gravestones<br>
+        ✓ <span class="highlight">12</span> Tombstone monuments<br>
+        ✓ <span class="highlight">25</span> Wooden crosses<br>
+        ✓ <span class="highlight">8</span> Broken coffins<br>
+        ✓ Dense fog & ghostly wisps<br>
+        ✓ Pale moonlight & necro glow
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="control-row">
+        <span class="key">A / D</span>
+        <span class="action">Move skeleton</span>
+      </div>
+      <div class="control-row">
+        <span class="key">W / SPACE</span>
+        <span class="action">Jump</span>
+      </div>
+      <div class="control-row">
+        <span class="key">Z</span>
+        <span class="action">Magic attack</span>
+      </div>
+    </div>
+
+    <p style="font-size: 12px; color: #666; margin-top: 15px;" class="pulse">
+      Look around - see the organic skeleton with real bone anatomy!
+    </p>
+  </div>
+
+  <div class="atmosphere-info">
+    <h3>🌙 Atmosphere</h3>
+    <div class="atmosphere-item">Dark graveyard night</div>
+    <div class="atmosphere-item">Ghostly wisps rising</div>
+    <div class="atmosphere-item">Eerie green glow</div>
+    <div class="atmosphere-item">Dense ground fog</div>
+    <div class="atmosphere-item">Pale cold moonlight</div>
+  </div>
+
+  <div id="game-container"></div>
+
+  <script type="module">
+    import { Game } from './src/core/Game.js';
+
+    console.log('🪦 Graveyard Skeleton Viewer loading...');
+
+    // Create game instance
+    const container = document.getElementById('game-container');
+    window.game = new Game(container);
+    window.game.init();
+
+    // Auto-start game
+    setTimeout(() => {
+      window.game.startNewGame();
+      console.log('✅ Organic skeleton loaded in graveyard!');
+      console.log('');
+      console.log('🦴 SKELETON FEATURES:');
+      console.log('  - Aged yellowish-white bones (#ddd4c0)');
+      console.log('  - Dark eye sockets with glowing eyes');
+      console.log('  - Visible teeth and jaw');
+      console.log('  - 12 curved ribs (6 pairs)');
+      console.log('  - 8 spine vertebrae');
+      console.log('  - Ball joints at shoulders/hips');
+      console.log('  - Hinge joints at elbows/knees');
+      console.log('  - Anatomical long bones');
+      console.log('  - 52 total bone pieces!');
+      console.log('');
+      console.log('🪦 GRAVEYARD FEATURES:');
+      console.log('  - 30 gravestones scattered');
+      console.log('  - 12 large tombstones');
+      console.log('  - 25 wooden crosses');
+      console.log('  - 8 broken coffins');
+      console.log('  - Ghostly wisps floating');
+      console.log('  - Dense fog atmosphere');
+      console.log('  - Eerie green ground glow');
+      console.log('');
+      console.log('👀 Move around to see the skeleton from different angles!');
+    }, 500);
+  </script>
+</body>
+</html>

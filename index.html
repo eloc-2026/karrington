@@ -3,12 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Project</title>
+  <title>Bone Workz</title>
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
-  <h1>Hello, World!</h1>
-  <p>Edit this page to get started.</p>
+  <div id="game-container">
+    <!-- Game world will be created here by RenderSystem -->
+    <div id="hud" style="display: none;">
+      <!-- HUD will be added later -->
+    </div>
+  </div>
+  <div id="debug-panel" style="position: fixed; bottom: 10px; left: 10px; background: rgba(0,0,0,0.8); color: #0f0; padding: 10px; font-family: monospace; font-size: 11px; border: 1px solid #0f0; z-index: 10000; max-width: 300px;">
+    <div><strong>🐛 DEBUG</strong></div>
+    <div id="debug-info">Loading...</div>
+  </div>
   <script type="module" src="/main.js"></script>
 </body>
 </html>

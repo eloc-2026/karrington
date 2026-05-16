@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grounding Test - Elemental Platformer</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Courier New', monospace;
+      background: #1a1a2e;
+      color: #eee;
+    }
+
+    h1 {
+      color: #00ff88;
+      text-align: center;
+    }
+
+    .test-info {
+      background: #16213e;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border: 2px solid #00ff88;
+    }
+
+    .test-item {
+      margin: 10px 0;
+      padding: 10px;
+      background: #0f3460;
+      border-radius: 4px;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-weight: bold;
+      margin-left: 10px;
+    }
+
+    .status.pass {
+      background: #00ff88;
+      color: #1a1a2e;
+    }
+
+    .status.fail {
+      background: #ff4444;
+      color: white;
+    }
+
+    .status.pending {
+      background: #ffaa00;
+      color: #1a1a2e;
+    }
+
+    .instructions {
+      background: #533483;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+
+    button {
+      background: #00ff88;
+      color: #1a1a2e;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+      margin: 10px 5px;
+    }
+
+    button:hover {
+      background: #00dd77;
+    }
+
+    #game-container {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎮 Movement & Grounding Test</h1>
+
+  <div class="test-info">
+    <h2>Test Checklist:</h2>
+    <div class="test-item">
+      ✓ Player starts on ground <span class="status pending" id="status-start">TESTING</span>
+    </div>
+    <div class="test-item">
+      ✓ No constant jumping <span class="status pending" id="status-jump">TESTING</span>
+    </div>
+    <div class="test-item">
+      ✓ Jump only when key pressed (not held) <span class="status pending" id="status-single">TESTING</span>
+    </div>
+    <div class="test-item">
+      ✓ Player stays grounded when idle <span class="status pending" id="status-grounded">TESTING</span>
+    </div>
+    <div class="test-item">
+      ✓ Enemies stay on ground <span class="status pending" id="status-enemies">TESTING</span>
+    </div>
+  </div>
+
+  <div class="instructions">
+    <h3>Instructions:</h3>
+    <ol>
+      <li>Click "Start Test" to load the game</li>
+      <li>Enter a player name when prompted</li>
+      <li>Watch for automatic jump detection</li>
+      <li>Press W/Space once - should jump ONCE, not repeatedly</li>
+      <li>Hold W/Space - should NOT keep jumping</li>
+      <li>Use A/D to move left/right</li>
+      <li>Stand still - character should stay on ground</li>
+      <li>Check enemies - they should walk on platforms, not float</li>
+    </ol>
+    <p><strong>Controls:</strong> A/D = Move, W/Space = Jump, Z = Attack, X = Spare</p>
+  </div>
+
+  <div style="text-align: center;">
+    <button onclick="startTest()">Start Test</button>
+    <button onclick="location.reload()">Reset</button>
+  </div>
+
+  <div id="game-container"></div>
+
+  <script type="module">
+    import { Game } from './src/core/Game.js';
+
+    window.startTest = function() {
+      console.log('🧪 Starting grounding test...');
+
+      // Show game container
+      document.getElementById('game-container').style.display = 'block';
+
+      // Create and initialize game
+      const container = document.getElementById('game-container');
+      window.game = new Game(container);
+      window.game.init();
+
+      // Auto-start new game after a brief delay
+      setTimeout(() => {
+        window.game.startNewGame();
+
+        // Start monitoring after game loads
+        setTimeout(() => {
+          monitorGameState();
+        }, 2000);
+      }, 500);
+    };
+
+    function monitorGameState() {
+      let jumpCount = 0;
+      let lastJumpTime = 0;
+      let frameCount = 0;
+
+      function checkState() {
+        if (!window.game || !window.game.player) return;
+
+        frameCount++;
+        const player = window.game.player;
+
+        // Test 1: Player starts on ground
+        if (frameCount === 10 && player.isGrounded) {
+          setStatus('status-start', 'PASS');
+        }
+
+        // Test 2 & 3: Monitor jumps
+        if (player.velocity.y < -100 && Date.now() - lastJumpTime > 500) {
+          jumpCount++;
+          lastJumpTime = Date.now();
+          console.log('🎯 Jump detected! Count:', jumpCount);
+
+          // If jumping too frequently, it's a bug
+          if (jumpCount > 10) {
+            setStatus('status-jump', 'FAIL - Too many jumps!');
+            setStatus('status-single', 'FAIL');
+          }
+        }
+
+        // Test 4: Player stays grounded when idle
+        if (frameCount > 60 && frameCount < 120) {
+          if (Math.abs(player.velocity.x) < 1 && player.isGrounded) {
+            setStatus('status-grounded', 'PASS');
+          }
+        }
+
+        // Test 5: Check enemies
+        const enemies = window.game.entities.filter(e => e.type === 'enemy');
+        if (enemies.length > 0 && frameCount > 60) {
+          const allGrounded = enemies.every(e => e.isGrounded || Math.abs(e.velocity.y) < 50);
+          if (allGrounded) {
+            setStatus('status-enemies', 'PASS');
+          }
+        }
+
+        // If no constant jumping after 3 seconds, mark as pass
+        if (frameCount > 180 && jumpCount < 5) {
+          setStatus('status-jump', 'PASS');
+          setStatus('status-single', 'PASS');
+        }
+
+        requestAnimationFrame(checkState);
+      }
+
+      checkState();
+    }
+
+    function setStatus(id, text) {
+      const el = document.getElementById(id);
+      el.textContent = text;
+      el.className = 'status ' + (text.includes('PASS') ? 'pass' : text.includes('FAIL') ? 'fail' : 'pending');
+    }
+  </script>
+</body>
+</html>

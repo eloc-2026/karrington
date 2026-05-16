@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Coordinate System Test</title>
+  <style>
+    body { margin: 0; padding: 20px; background: #222; color: #0f0; font-family: monospace; }
+    #viewport {
+      width: 800px;
+      height: 600px;
+      background: #000;
+      position: relative;
+      overflow: hidden;
+      border: 2px solid #0f0;
+    }
+    #world {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      transform-origin: 0 0;
+    }
+    .entity {
+      position: absolute;
+      width: 32px;
+      height: 48px;
+      background: #0f0;
+      border: 2px solid #fff;
+    }
+    .platform {
+      position: absolute;
+      background: #555;
+      border: 2px solid #888;
+    }
+  </style>
+</head>
+<body>
+  <h2>Coordinate System Test</h2>
+  <div id="info">
+    <div>Player World Pos: <span id="player-world-pos"></span></div>
+    <div>Camera Offset: <span id="camera-offset"></span></div>
+    <div>World Transform: <span id="world-transform"></span></div>
+  </div>
+  <br>
+  <div id="viewport">
+    <div id="world">
+      <div class="entity" id="player"></div>
+      <div class="platform" id="ground"></div>
+    </div>
+  </div>
+  <br>
+  <div>
+    <button onclick="moveLeft()">Move LEFT (X-100)</button>
+    <button onclick="moveRight()">Move RIGHT (X+100)</button>
+    <button onclick="moveDown()">Move DOWN (Y+100)</button>
+  </div>
+
+  <script>
+    let playerX = 100;
+    let playerY = 400;
+    let cameraX = 0;
+    let cameraY = 0;
+
+    const player = document.getElementById('player');
+    const ground = document.getElementById('ground');
+    const world = document.getElementById('world');
+
+    // Setup ground platform
+    ground.style.left = '0px';
+    ground.style.top = '550px';
+    ground.style.width = '800px';
+    ground.style.height = '50px';
+
+    function update() {
+      // Update player position
+      player.style.transform = `translate3d(${playerX}px, ${playerY}px, 0)`;
+
+      // Update camera (center on player)
+      cameraX = Math.max(0, playerX + 16 - 400);
+      cameraY = Math.max(0, playerY + 24 - 300);
+
+      // Apply camera to world
+      world.style.transform = `translate3d(-${cameraX}px, -${cameraY}px, 0)`;
+
+      // Update display
+      document.getElementById('player-world-pos').textContent = `(${playerX}, ${playerY})`;
+      document.getElementById('camera-offset').textContent = `(${cameraX}, ${cameraY})`;
+      document.getElementById('world-transform').textContent = `translate3d(-${cameraX}px, -${cameraY}px, 0)`;
+    }
+
+    function moveLeft() { playerX -= 100; update(); }
+    function moveRight() { playerX += 100; update(); }
+    function moveDown() { playerY += 100; update(); }
+
+    update();
+  </script>
+</body>
+</html>

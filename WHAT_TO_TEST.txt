@@ -1,0 +1,41 @@
+🧪 TESTING CHECKLIST - Please Complete
+
+SERVER:
+✓ Dev server is running on http://localhost:5173/
+
+TESTS TO RUN:
+
+1. Open main game: http://localhost:5173/
+   - Do you see the 3D scrapyard?
+   - Does player appear on screen?
+   - Is player on the ground or falling?
+   - Can you move with A/D keys?
+   - Can you jump with W/Space?
+
+2. Open debug page: http://localhost:5173/debug-check.html
+   - Does it show "SUCCESS: Player is grounded and stable"?
+   - What are the final values shown?
+
+3. Browser console (F12):
+   - Look for "Level loaded" message
+   - What does it say for "Player grounded AFTER"?
+   - Do you see any red errors?
+
+4. Watch the player for 10 seconds:
+   - Does it stay still or drift down?
+   - Does it fall through the ground?
+   - If it falls, does it teleport back? (emergency system)
+
+PLEASE REPORT:
+
+1. Main game - Player grounded? (yes/no):
+2. Main game - Player falling? (yes/no):
+3. Debug page - Shows SUCCESS? (yes/no):
+4. Console - Any errors? (yes/no - paste errors if yes):
+5. Player position Y value from console:
+
+Copy the console output showing:
+"Player grounded AFTER: ..."
+"After collision: Player grounded = ..."
+
+This will tell me exactly what's failing!
