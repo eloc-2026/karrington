@@ -922,8 +922,513 @@ export class ThreeJSRenderer {
     rightFoot.castShadow = true;
     group.add(rightFoot);
 
-    // ===== SCRAP CLOTHING =====
+    // ===== CLASS-SPECIFIC GEAR =====
+    if (this.playerClass === 'mage') {
+      this.addMageGear(group, scrapClothMaterial, brownClothMaterial);
+    } else if (this.playerClass === 'tech') {
+      this.addTechGear(group, scrapClothMaterial, brownClothMaterial);
+    } else if (this.playerClass === 'graver') {
+      this.addGraverGear(group, scrapClothMaterial, brownClothMaterial);
+    } else {
+      this.addDefaultGear(group, scrapClothMaterial, brownClothMaterial);
+    }
 
+    return group;
+  }
+
+  // ===== MAGE GEAR =====
+  addMageGear(group, scrapClothMaterial, brownClothMaterial) {
+    // Tall pointed wizard hood
+    const hoodGeometry = new THREE.ConeGeometry(0.5, 1.0, 8);
+    const hood = new THREE.Mesh(hoodGeometry, scrapClothMaterial);
+    hood.position.set(0, 2.45, -0.1);
+    hood.rotation.x = 0.1;
+    hood.castShadow = true;
+    group.add(hood);
+
+    // Flowing robe mantle over shoulders
+    const mantleGeometry = new THREE.ConeGeometry(0.7, 0.5, 8, 1, true);
+    const mantle = new THREE.Mesh(mantleGeometry, scrapClothMaterial);
+    mantle.position.set(0, 1.45, 0);
+    mantle.castShadow = true;
+    group.add(mantle);
+
+    // Long flowing robe skirt (extends to ankles)
+    const robeGeometry = new THREE.CylinderGeometry(0.35, 0.55, 1.4, 8, 1, true);
+    const robe = new THREE.Mesh(robeGeometry, scrapClothMaterial);
+    robe.position.y = 0.05;
+    robe.castShadow = true;
+    group.add(robe);
+
+    // Arcane rune glow on chest
+    const runeGeometry = new THREE.RingGeometry(0.06, 0.1, 6);
+    const runeMaterial = new THREE.MeshStandardMaterial({
+      color: 0x4488ff,
+      emissive: 0x4488ff,
+      emissiveIntensity: 3,
+      transparent: true,
+      opacity: 0.8,
+      side: THREE.DoubleSide
+    });
+    const rune = new THREE.Mesh(runeGeometry, runeMaterial);
+    rune.position.set(0, 1.3, 0.32);
+    group.add(rune);
+
+    // Inner rune circle
+    const innerRuneGeometry = new THREE.CircleGeometry(0.05, 6);
+    const innerRune = new THREE.Mesh(innerRuneGeometry, runeMaterial);
+    innerRune.position.set(0, 1.3, 0.33);
+    group.add(innerRune);
+
+    // Rune glow light
+    const runeLight = new THREE.PointLight(0x4488ff, 0.4, 3);
+    runeLight.position.set(0, 1.3, 0.5);
+    group.add(runeLight);
+
+    // Staff in right hand - shaft
+    const staffShaftGeometry = new THREE.CylinderGeometry(0.03, 0.035, 2.5, 8);
+    const staffMaterial = new THREE.MeshStandardMaterial({
+      color: 0x3a2a1a,
+      roughness: 0.8,
+      metalness: 0.1
+    });
+    const staffShaft = new THREE.Mesh(staffShaftGeometry, staffMaterial);
+    staffShaft.position.set(0.85, 0.7, 0);
+    staffShaft.castShadow = true;
+    group.add(staffShaft);
+
+    // Staff orb holder (forked top)
+    const forkGeometry = new THREE.TorusGeometry(0.08, 0.02, 6, 8, Math.PI * 2);
+    const forkMaterial = new THREE.MeshStandardMaterial({
+      color: 0x4a3a2a,
+      roughness: 0.6,
+      metalness: 0.3
+    });
+    const fork = new THREE.Mesh(forkGeometry, forkMaterial);
+    fork.position.set(0.85, 1.95, 0);
+    fork.rotation.x = Math.PI / 2;
+    group.add(fork);
+
+    // Glowing orb on top of staff
+    const orbGeometry = new THREE.SphereGeometry(0.1, 12, 12);
+    const orbMaterial = new THREE.MeshStandardMaterial({
+      color: 0x4488ff,
+      emissive: 0x4488ff,
+      emissiveIntensity: 4,
+      transparent: true,
+      opacity: 0.9
+    });
+    const orb = new THREE.Mesh(orbGeometry, orbMaterial);
+    orb.position.set(0.85, 1.95, 0);
+    group.add(orb);
+
+    // Staff orb glow light
+    const orbLight = new THREE.PointLight(0x4488ff, 1.0, 6);
+    orbLight.position.set(0.85, 1.95, 0);
+    group.add(orbLight);
+
+    // Waist sash/belt
+    const sashGeometry = new THREE.CylinderGeometry(0.38, 0.38, 0.12, 8);
+    const sashMaterial = new THREE.MeshStandardMaterial({
+      color: 0x2a2a5a,
+      roughness: 0.9,
+      metalness: 0.0
+    });
+    const sash = new THREE.Mesh(sashGeometry, sashMaterial);
+    sash.position.y = 0.7;
+    group.add(sash);
+
+    // Arcane buckle
+    const buckleGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.06);
+    const buckleMaterial = new THREE.MeshStandardMaterial({
+      color: 0x4488ff,
+      emissive: 0x4488ff,
+      emissiveIntensity: 1,
+      roughness: 0.3,
+      metalness: 0.8
+    });
+    const buckle = new THREE.Mesh(buckleGeometry, buckleMaterial);
+    buckle.position.set(0, 0.72, 0.38);
+    group.add(buckle);
+  }
+
+  // ===== TECH GEAR =====
+  addTechGear(group, scrapClothMaterial, brownClothMaterial) {
+    const armorMaterial = new THREE.MeshStandardMaterial({
+      color: 0x4a4a4a,
+      roughness: 0.4,
+      metalness: 0.8
+    });
+
+    const techGlowMaterial = new THREE.MeshStandardMaterial({
+      color: 0x00ffaa,
+      emissive: 0x00ffaa,
+      emissiveIntensity: 3,
+      transparent: true,
+      opacity: 0.9
+    });
+
+    // Helmet/headband (no hood)
+    const headbandGeometry = new THREE.CylinderGeometry(0.42, 0.42, 0.1, 12);
+    const headband = new THREE.Mesh(headbandGeometry, armorMaterial);
+    headband.position.set(0, 2.15, 0);
+    headband.castShadow = true;
+    group.add(headband);
+
+    // Tech visor over right eye
+    const visorGeometry = new THREE.BoxGeometry(0.18, 0.06, 0.08);
+    const visor = new THREE.Mesh(visorGeometry, techGlowMaterial);
+    visor.position.set(0.15, 2.08, 0.38);
+    group.add(visor);
+
+    // Visor glow light
+    const visorLight = new THREE.PointLight(0x00ffaa, 0.5, 3);
+    visorLight.position.set(0.15, 2.08, 0.5);
+    group.add(visorLight);
+
+    // Chest plate (over ribcage)
+    const chestGeometry = new THREE.BoxGeometry(0.55, 0.6, 0.15);
+    const chest = new THREE.Mesh(chestGeometry, armorMaterial);
+    chest.position.set(0, 1.3, 0.15);
+    chest.castShadow = true;
+    group.add(chest);
+
+    // Chest plate tech line
+    const chestLineGeometry = new THREE.BoxGeometry(0.02, 0.5, 0.02);
+    const chestLine = new THREE.Mesh(chestLineGeometry, techGlowMaterial);
+    chestLine.position.set(0, 1.3, 0.24);
+    group.add(chestLine);
+
+    // Left shoulder pauldron
+    const pauldronGeometry = new THREE.BoxGeometry(0.3, 0.15, 0.2);
+    const leftPauldron = new THREE.Mesh(pauldronGeometry, armorMaterial);
+    leftPauldron.position.set(-0.45, 1.55, 0);
+    leftPauldron.rotation.z = 0.3;
+    leftPauldron.castShadow = true;
+    group.add(leftPauldron);
+
+    // Right shoulder pauldron
+    const rightPauldron = new THREE.Mesh(pauldronGeometry, armorMaterial);
+    rightPauldron.position.set(0.45, 1.55, 0);
+    rightPauldron.rotation.z = -0.3;
+    rightPauldron.castShadow = true;
+    group.add(rightPauldron);
+
+    // Pauldron tech accents
+    const accentGeometry = new THREE.BoxGeometry(0.25, 0.02, 0.16);
+    const leftAccent = new THREE.Mesh(accentGeometry, techGlowMaterial);
+    leftAccent.position.set(-0.45, 1.55, 0);
+    leftAccent.rotation.z = 0.3;
+    group.add(leftAccent);
+
+    const rightAccent = new THREE.Mesh(accentGeometry, techGlowMaterial);
+    rightAccent.position.set(0.45, 1.55, 0);
+    rightAccent.rotation.z = -0.3;
+    group.add(rightAccent);
+
+    // Gun/blaster in right hand - barrel
+    const barrelGeometry = new THREE.BoxGeometry(0.06, 0.06, 0.4);
+    const barrelMaterial = new THREE.MeshStandardMaterial({
+      color: 0x3a3a3a,
+      roughness: 0.3,
+      metalness: 0.9
+    });
+    const barrel = new THREE.Mesh(barrelGeometry, barrelMaterial);
+    barrel.position.set(0.77, 0.12, 0.2);
+    barrel.castShadow = true;
+    group.add(barrel);
+
+    // Gun grip
+    const gripGeometry = new THREE.CylinderGeometry(0.04, 0.04, 0.15, 8);
+    const grip = new THREE.Mesh(gripGeometry, barrelMaterial);
+    grip.position.set(0.77, 0.05, 0.05);
+    group.add(grip);
+
+    // Gun muzzle glow
+    const muzzleGeometry = new THREE.SphereGeometry(0.04, 6, 6);
+    const muzzle = new THREE.Mesh(muzzleGeometry, techGlowMaterial);
+    muzzle.position.set(0.77, 0.12, 0.42);
+    group.add(muzzle);
+
+    // Gun muzzle light
+    const muzzleLight = new THREE.PointLight(0x00ffaa, 0.5, 2);
+    muzzleLight.position.set(0.77, 0.12, 0.5);
+    group.add(muzzleLight);
+
+    // Circuit lines on forearms
+    const circuitGeometry = new THREE.CylinderGeometry(0.01, 0.01, 0.4, 4);
+
+    const leftCircuit = new THREE.Mesh(circuitGeometry, techGlowMaterial);
+    leftCircuit.position.set(-0.68, 0.55, 0.04);
+    leftCircuit.rotation.z = 0.15;
+    group.add(leftCircuit);
+
+    const rightCircuit = new THREE.Mesh(circuitGeometry, techGlowMaterial);
+    rightCircuit.position.set(0.68, 0.55, 0.04);
+    rightCircuit.rotation.z = -0.15;
+    group.add(rightCircuit);
+
+    // Armored waist belt
+    const beltGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.15, 8);
+    const belt = new THREE.Mesh(beltGeometry, armorMaterial);
+    belt.position.y = 0.7;
+    belt.castShadow = true;
+    group.add(belt);
+
+    // Armored leg plates
+    const legPlateGeometry = new THREE.BoxGeometry(0.1, 0.35, 0.08);
+
+    const leftLegPlate = new THREE.Mesh(legPlateGeometry, armorMaterial);
+    leftLegPlate.position.set(-0.18, -0.55, 0.05);
+    leftLegPlate.castShadow = true;
+    group.add(leftLegPlate);
+
+    const rightLegPlate = new THREE.Mesh(legPlateGeometry, armorMaterial);
+    rightLegPlate.position.set(0.18, -0.55, 0.05);
+    rightLegPlate.castShadow = true;
+    group.add(rightLegPlate);
+
+    // Leg plate tech lines
+    const legLineGeometry = new THREE.BoxGeometry(0.02, 0.3, 0.02);
+
+    const leftLegLine = new THREE.Mesh(legLineGeometry, techGlowMaterial);
+    leftLegLine.position.set(-0.18, -0.55, 0.1);
+    group.add(leftLegLine);
+
+    const rightLegLine = new THREE.Mesh(legLineGeometry, techGlowMaterial);
+    rightLegLine.position.set(0.18, -0.55, 0.1);
+    group.add(rightLegLine);
+
+    // Tech belt buckle
+    const buckleGeometry = new THREE.BoxGeometry(0.14, 0.14, 0.06);
+    const buckleMaterial = new THREE.MeshStandardMaterial({
+      color: 0x00ffaa,
+      emissive: 0x00ffaa,
+      emissiveIntensity: 1.5,
+      roughness: 0.2,
+      metalness: 0.9
+    });
+    const buckle = new THREE.Mesh(buckleGeometry, buckleMaterial);
+    buckle.position.set(0, 0.72, 0.4);
+    group.add(buckle);
+  }
+
+  // ===== GRAVER GEAR =====
+  addGraverGear(group, scrapClothMaterial, brownClothMaterial) {
+    const darkMetalMaterial = new THREE.MeshStandardMaterial({
+      color: 0x3a2a2a,
+      roughness: 0.5,
+      metalness: 0.7
+    });
+
+    const redGlowMaterial = new THREE.MeshStandardMaterial({
+      color: 0xff4444,
+      emissive: 0xff4444,
+      emissiveIntensity: 2,
+      transparent: true,
+      opacity: 0.8
+    });
+
+    // Bone crown/horns on skull (no hood)
+    const hornGeometry = new THREE.ConeGeometry(0.05, 0.3, 6);
+    const hornMaterial = new THREE.MeshStandardMaterial({
+      color: 0xddd4c0,
+      roughness: 0.6,
+      metalness: 0.1
+    });
+
+    // Left horn
+    const leftHorn = new THREE.Mesh(hornGeometry, hornMaterial);
+    leftHorn.position.set(-0.22, 2.35, 0);
+    leftHorn.rotation.z = 0.4;
+    leftHorn.castShadow = true;
+    group.add(leftHorn);
+
+    // Right horn
+    const rightHorn = new THREE.Mesh(hornGeometry, hornMaterial);
+    rightHorn.position.set(0.22, 2.35, 0);
+    rightHorn.rotation.z = -0.4;
+    rightHorn.castShadow = true;
+    group.add(rightHorn);
+
+    // Center horn (larger)
+    const centerHornGeometry = new THREE.ConeGeometry(0.04, 0.2, 6);
+    const centerHorn = new THREE.Mesh(centerHornGeometry, hornMaterial);
+    centerHorn.position.set(0, 2.4, 0.1);
+    centerHorn.castShadow = true;
+    group.add(centerHorn);
+
+    // Shoulder pauldrons with spikes
+    const pauldronGeometry = new THREE.BoxGeometry(0.28, 0.18, 0.18);
+
+    const leftPauldron = new THREE.Mesh(pauldronGeometry, darkMetalMaterial);
+    leftPauldron.position.set(-0.48, 1.55, 0);
+    leftPauldron.rotation.z = 0.25;
+    leftPauldron.castShadow = true;
+    group.add(leftPauldron);
+
+    const rightPauldron = new THREE.Mesh(pauldronGeometry, darkMetalMaterial);
+    rightPauldron.position.set(0.48, 1.55, 0);
+    rightPauldron.rotation.z = -0.25;
+    rightPauldron.castShadow = true;
+    group.add(rightPauldron);
+
+    // Pauldron spikes
+    const spikeGeometry = new THREE.ConeGeometry(0.03, 0.15, 5);
+
+    const leftSpike = new THREE.Mesh(spikeGeometry, darkMetalMaterial);
+    leftSpike.position.set(-0.55, 1.68, 0);
+    leftSpike.rotation.z = 0.5;
+    group.add(leftSpike);
+
+    const rightSpike = new THREE.Mesh(spikeGeometry, darkMetalMaterial);
+    rightSpike.position.set(0.55, 1.68, 0);
+    rightSpike.rotation.z = -0.5;
+    group.add(rightSpike);
+
+    // Battle cape (flowing behind)
+    const capeGeometry = new THREE.BoxGeometry(0.6, 1.2, 0.04);
+    const capeMaterial = new THREE.MeshStandardMaterial({
+      color: 0x3a1a1a,
+      roughness: 0.9,
+      metalness: 0.0
+    });
+    const cape = new THREE.Mesh(capeGeometry, capeMaterial);
+    cape.position.set(0, 0.9, -0.25);
+    cape.rotation.x = -0.15;
+    cape.castShadow = true;
+    group.add(cape);
+
+    // Cape bottom tatter
+    const capeBottomGeometry = new THREE.BoxGeometry(0.55, 0.3, 0.04);
+    const capeBottom = new THREE.Mesh(capeBottomGeometry, capeMaterial);
+    capeBottom.position.set(0, 0.2, -0.3);
+    capeBottom.rotation.x = -0.25;
+    group.add(capeBottom);
+
+    // Tattered battle skirt (shorter, more strips)
+    const skirtGeometry = new THREE.CylinderGeometry(0.38, 0.42, 0.35, 8, 1, true);
+    const skirt = new THREE.Mesh(skirtGeometry, scrapClothMaterial);
+    skirt.position.y = 0.55;
+    skirt.castShadow = true;
+    group.add(skirt);
+
+    // Battle skirt strips
+    for (let i = 0; i < 6; i++) {
+      const stripGeometry = new THREE.BoxGeometry(0.08, 0.25, 0.02);
+      const strip = new THREE.Mesh(stripGeometry, brownClothMaterial);
+      const angle = (i / 6) * Math.PI * 2;
+      strip.position.set(
+        Math.sin(angle) * 0.36,
+        0.28,
+        Math.cos(angle) * 0.36
+      );
+      strip.rotation.x = 0.15;
+      strip.castShadow = true;
+      group.add(strip);
+    }
+
+    // Arm guards
+    const guardGeometry = new THREE.BoxGeometry(0.08, 0.25, 0.06);
+
+    const leftGuard = new THREE.Mesh(guardGeometry, darkMetalMaterial);
+    leftGuard.position.set(-0.68, 0.55, 0.03);
+    leftGuard.rotation.z = 0.15;
+    leftGuard.castShadow = true;
+    group.add(leftGuard);
+
+    const rightGuard = new THREE.Mesh(guardGeometry, darkMetalMaterial);
+    rightGuard.position.set(0.68, 0.55, 0.03);
+    rightGuard.rotation.z = -0.15;
+    rightGuard.castShadow = true;
+    group.add(rightGuard);
+
+    // Red accent on arm guards
+    const guardAccentGeometry = new THREE.BoxGeometry(0.02, 0.2, 0.02);
+
+    const leftAccent = new THREE.Mesh(guardAccentGeometry, redGlowMaterial);
+    leftAccent.position.set(-0.68, 0.55, 0.07);
+    leftAccent.rotation.z = 0.15;
+    group.add(leftAccent);
+
+    const rightAccent = new THREE.Mesh(guardAccentGeometry, redGlowMaterial);
+    rightAccent.position.set(0.68, 0.55, 0.07);
+    rightAccent.rotation.z = -0.15;
+    group.add(rightAccent);
+
+    // Sword in right hand - blade
+    const bladeGeometry = new THREE.BoxGeometry(0.04, 1.4, 0.02);
+    const bladeMaterial = new THREE.MeshStandardMaterial({
+      color: 0xaaaaaa,
+      roughness: 0.2,
+      metalness: 0.9
+    });
+    const blade = new THREE.Mesh(bladeGeometry, bladeMaterial);
+    blade.position.set(0.82, 0.8, 0.02);
+    blade.castShadow = true;
+    group.add(blade);
+
+    // Sword blade edge glow
+    const edgeGeometry = new THREE.BoxGeometry(0.01, 1.3, 0.01);
+    const edge = new THREE.Mesh(edgeGeometry, redGlowMaterial);
+    edge.position.set(0.84, 0.8, 0.02);
+    group.add(edge);
+
+    // Sword crossguard
+    const crossguardGeometry = new THREE.BoxGeometry(0.2, 0.04, 0.04);
+    const crossguard = new THREE.Mesh(crossguardGeometry, darkMetalMaterial);
+    crossguard.position.set(0.82, 0.12, 0.02);
+    group.add(crossguard);
+
+    // Sword grip
+    const swordGripGeometry = new THREE.CylinderGeometry(0.025, 0.025, 0.15, 6);
+    const swordGripMaterial = new THREE.MeshStandardMaterial({
+      color: 0x4a2a1a,
+      roughness: 0.8,
+      metalness: 0.1
+    });
+    const swordGrip = new THREE.Mesh(swordGripGeometry, swordGripMaterial);
+    swordGrip.position.set(0.82, 0.04, 0.02);
+    group.add(swordGrip);
+
+    // Sword pommel
+    const pommelGeometry = new THREE.SphereGeometry(0.04, 6, 6);
+    const pommel = new THREE.Mesh(pommelGeometry, darkMetalMaterial);
+    pommel.position.set(0.82, -0.04, 0.02);
+    group.add(pommel);
+
+    // Warrior belt with large buckle
+    const beltGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.12, 8);
+    const belt = new THREE.Mesh(beltGeometry, darkMetalMaterial);
+    belt.position.y = 0.7;
+    belt.castShadow = true;
+    group.add(belt);
+
+    // Skull buckle
+    const buckleGeometry = new THREE.SphereGeometry(0.07, 8, 8);
+    const buckleMaterial = new THREE.MeshStandardMaterial({
+      color: 0xddd4c0,
+      roughness: 0.5,
+      metalness: 0.3
+    });
+    const buckle = new THREE.Mesh(buckleGeometry, buckleMaterial);
+    buckle.position.set(0, 0.72, 0.4);
+    buckle.scale.set(1, 1.2, 0.6);
+    group.add(buckle);
+
+    // Skull buckle eyes
+    const buckleEyeGeometry = new THREE.SphereGeometry(0.015, 4, 4);
+    const leftBuckleEye = new THREE.Mesh(buckleEyeGeometry, redGlowMaterial);
+    leftBuckleEye.position.set(-0.025, 0.74, 0.43);
+    group.add(leftBuckleEye);
+
+    const rightBuckleEye = new THREE.Mesh(buckleEyeGeometry, redGlowMaterial);
+    rightBuckleEye.position.set(0.025, 0.74, 0.43);
+    group.add(rightBuckleEye);
+  }
+
+  // ===== DEFAULT GEAR (fallback) =====
+  addDefaultGear(group, scrapClothMaterial, brownClothMaterial) {
     // Tattered hooded cloak
     const hoodGeometry = new THREE.ConeGeometry(0.48, 0.6, 8);
     const hood = new THREE.Mesh(hoodGeometry, scrapClothMaterial);
@@ -932,30 +1437,29 @@ export class ThreeJSRenderer {
     hood.castShadow = true;
     group.add(hood);
 
-    // Ragged shoulder cloth (left)
-    const leftShoulderGeometry = new THREE.BoxGeometry(0.25, 0.45, 0.04);
-    const leftShoulderCloth = new THREE.Mesh(leftShoulderGeometry, brownClothMaterial);
+    // Shoulder cloths
+    const shoulderGeometry = new THREE.BoxGeometry(0.25, 0.45, 0.04);
+
+    const leftShoulderCloth = new THREE.Mesh(shoulderGeometry, brownClothMaterial);
     leftShoulderCloth.position.set(-0.42, 1.3, 0.02);
     leftShoulderCloth.rotation.z = 0.4;
     leftShoulderCloth.castShadow = true;
     group.add(leftShoulderCloth);
 
-    // Ragged shoulder cloth (right)
-    const rightShoulderGeometry = new THREE.BoxGeometry(0.25, 0.45, 0.04);
-    const rightShoulderCloth = new THREE.Mesh(rightShoulderGeometry, brownClothMaterial);
+    const rightShoulderCloth = new THREE.Mesh(shoulderGeometry, brownClothMaterial);
     rightShoulderCloth.position.set(0.42, 1.3, 0.02);
     rightShoulderCloth.rotation.z = -0.4;
     rightShoulderCloth.castShadow = true;
     group.add(rightShoulderCloth);
 
-    // Torn waist cloth / kilt
+    // Waist cloth
     const waistClothGeometry = new THREE.CylinderGeometry(0.4, 0.45, 0.5, 8, 1, true);
     const waistCloth = new THREE.Mesh(waistClothGeometry, scrapClothMaterial);
     waistCloth.position.y = 0.55;
     waistCloth.castShadow = true;
     group.add(waistCloth);
 
-    // Tattered cloth strips hanging from waist
+    // Tattered strips
     for (let i = 0; i < 4; i++) {
       const stripGeometry = new THREE.BoxGeometry(0.1, 0.3, 0.02);
       const strip = new THREE.Mesh(stripGeometry, brownClothMaterial);
@@ -970,8 +1474,9 @@ export class ThreeJSRenderer {
       group.add(strip);
     }
 
-    // Wrapped cloth around forearms
+    // Arm wraps
     const armWrapGeometry = new THREE.CylinderGeometry(0.045, 0.045, 0.2, 8);
+
     const leftArmWrap = new THREE.Mesh(armWrapGeometry, brownClothMaterial);
     leftArmWrap.position.set(-0.68, 0.5, 0);
     leftArmWrap.rotation.z = 0.15;
@@ -984,8 +1489,9 @@ export class ThreeJSRenderer {
     rightArmWrap.castShadow = true;
     group.add(rightArmWrap);
 
-    // Leg wraps / bindings
+    // Leg wraps
     const legWrapGeometry = new THREE.CylinderGeometry(0.055, 0.055, 0.25, 8);
+
     const leftLegWrap = new THREE.Mesh(legWrapGeometry, brownClothMaterial);
     leftLegWrap.position.set(-0.18, -0.65, 0);
     leftLegWrap.castShadow = true;
@@ -996,10 +1502,10 @@ export class ThreeJSRenderer {
     rightLegWrap.castShadow = true;
     group.add(rightLegWrap);
 
-    // Rusty metal belt buckle
+    // Belt buckle
     const buckleGeometry = new THREE.BoxGeometry(0.12, 0.12, 0.06);
     const buckleMaterial = new THREE.MeshStandardMaterial({
-      color: 0x6a4a3a, // Rusty metal
+      color: 0x6a4a3a,
       roughness: 0.8,
       metalness: 0.6
     });
@@ -1007,8 +1513,6 @@ export class ThreeJSRenderer {
     buckle.position.set(0, 0.72, 0.38);
     buckle.castShadow = true;
     group.add(buckle);
-
-    return group;
   }
 
   createEnemyMesh(entity) {
@@ -1113,11 +1617,19 @@ export class ThreeJSRenderer {
   createProjectileMesh(entity) {
     const group = new THREE.Group();
 
+    // Use class-specific color from entity, fall back to default green
+    let projectileColor = 0x00ffaa;
+    if (entity.color) {
+      // Parse hex color string like '#4488ff' to number
+      const colorStr = entity.color.replace('#', '');
+      projectileColor = parseInt(colorStr, 16);
+    }
+
     // Glowing magical projectile
     const geometry = new THREE.SphereGeometry(0.3, 8, 8);
     const material = new THREE.MeshStandardMaterial({
-      color: 0x00ffaa,
-      emissive: 0x00ffaa,
+      color: projectileColor,
+      emissive: projectileColor,
       emissiveIntensity: 2,
       transparent: true,
       opacity: 0.9
@@ -1126,13 +1638,13 @@ export class ThreeJSRenderer {
     group.add(sphere);
 
     // Glow effect
-    const light = new THREE.PointLight(0x00ffaa, 1, 5);
+    const light = new THREE.PointLight(projectileColor, 1, 5);
     group.add(light);
 
     // Trail particles
     const trailGeometry = new THREE.SphereGeometry(0.4, 6, 6);
     const trailMaterial = new THREE.MeshBasicMaterial({
-      color: 0x00ffaa,
+      color: projectileColor,
       transparent: true,
       opacity: 0.3,
       blending: THREE.AdditiveBlending
@@ -1141,6 +1653,67 @@ export class ThreeJSRenderer {
     group.add(trail);
 
     return group;
+  }
+
+  createMeleeSlashEffect(entity) {
+    const group = new THREE.Group();
+
+    // Red slash arc
+    const slashGeometry = new THREE.TorusGeometry(0.8, 0.04, 4, 12, Math.PI * 0.6);
+    const slashMaterial = new THREE.MeshStandardMaterial({
+      color: 0xff4444,
+      emissive: 0xff4444,
+      emissiveIntensity: 4,
+      transparent: true,
+      opacity: 0.9,
+      side: THREE.DoubleSide
+    });
+    const slash = new THREE.Mesh(slashGeometry, slashMaterial);
+    slash.rotation.z = -Math.PI / 4;
+    group.add(slash);
+
+    // Inner slash trail (wider, more transparent)
+    const trailGeometry = new THREE.TorusGeometry(0.8, 0.12, 4, 12, Math.PI * 0.6);
+    const trailMaterial = new THREE.MeshBasicMaterial({
+      color: 0xff4444,
+      transparent: true,
+      opacity: 0.3,
+      blending: THREE.AdditiveBlending,
+      side: THREE.DoubleSide
+    });
+    const trail = new THREE.Mesh(trailGeometry, trailMaterial);
+    trail.rotation.z = -Math.PI / 4;
+    group.add(trail);
+
+    // Slash glow light
+    const slashLight = new THREE.PointLight(0xff4444, 2, 6);
+    group.add(slashLight);
+
+    // Position at entity
+    const posX = (entity.position.x - 400) / 40;
+    const posY = -(entity.position.y - 300) / 40;
+    const direction = entity.facingRight ? 1 : -1;
+    group.position.set(posX + direction * 1.2, posY, 0);
+    group.scale.x = direction;
+
+    this.scene.add(group);
+
+    // Animate fade out and remove
+    let opacity = 1.0;
+    const fadeInterval = setInterval(() => {
+      opacity -= 0.15;
+      slashMaterial.opacity = Math.max(0, opacity);
+      trailMaterial.opacity = Math.max(0, opacity * 0.3);
+      slashLight.intensity = Math.max(0, opacity * 2);
+      if (opacity <= 0) {
+        clearInterval(fadeInterval);
+        this.scene.remove(group);
+        slashGeometry.dispose();
+        slashMaterial.dispose();
+        trailGeometry.dispose();
+        trailMaterial.dispose();
+      }
+    }, 30);
   }
 
   createDefaultMesh(entity) {
@@ -1181,6 +1754,12 @@ export class ThreeJSRenderer {
     // Facing direction (scale X to flip)
     if (entity.facingRight !== undefined) {
       mesh.scale.x = entity.facingRight ? 1 : -1;
+    }
+
+    // Melee slash effect trigger
+    if (entity.showMeleeSlash) {
+      entity.showMeleeSlash = false;
+      this.createMeleeSlashEffect(entity);
     }
   }
 

@@ -209,6 +209,9 @@ export class Player extends Entity {
   }
 
   performMeleeAttack(game, ability) {
+    // Trigger visual slash effect
+    this.showMeleeSlash = true;
+
     // Find enemies in melee range
     const meleeRange = ability.range || 60;
     const direction = this.facingRight ? 1 : -1;
