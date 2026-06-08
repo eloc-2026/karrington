@@ -1,5 +1,5 @@
 import { Entity } from '../Entity.js';
-import { ENTITY_TYPES } from '../../utils/Constants.js';
+import { ENTITY_TYPES, GAME_CONFIG } from '../../utils/Constants.js';
 
 /**
  * Goblin - Small, fast melee enemy
@@ -110,6 +110,11 @@ export class Goblin extends Entity {
     // Drop gold
     if (game) {
       this.dropGold(game);
+    }
+
+    // Award XP to player
+    if (game && game.player && game.player.addXP) {
+      game.player.addXP(GAME_CONFIG.XP.REWARDS.GOBLIN);
     }
 
     this.active = false;

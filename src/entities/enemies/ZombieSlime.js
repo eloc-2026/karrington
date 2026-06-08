@@ -113,6 +113,11 @@ export class ZombieSlime extends Entity {
       this.dropGold(game);
     }
 
+    // Award XP to player
+    if (game && game.player && game.player.addXP) {
+      game.player.addXP(GAME_CONFIG.XP.REWARDS.ZOMBIE_SLIME);
+    }
+
     this.active = false;
     this.destroy();
   }

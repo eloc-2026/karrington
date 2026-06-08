@@ -117,6 +117,7 @@ export class QuestSystem {
         console.log(`💰 Rewarded ${quest.reward.gold} gold`);
       }
       if (quest.reward.exp) {
+        this.game.player.addXP(quest.reward.exp);
         console.log(`⭐ Rewarded ${quest.reward.exp} exp`);
       }
     }

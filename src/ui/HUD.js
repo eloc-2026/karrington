@@ -6,8 +6,11 @@ export class HUD {
     this.element = null;
     this.healthBar = null;
     this.manaBar = null;
+    this.xpBar = null;
     this.healthText = null;
     this.manaText = null;
+    this.xpText = null;
+    this.levelText = null;
   }
 
   init(container) {
@@ -38,9 +41,26 @@ export class HUD {
           </div>
           <div class="stat-text mana-text">100 / 100</div>
         </div>
+        <div class="stat-bar xp-container">
+          <div class="stat-label">XP</div>
+          <div class="stat-bar-bg">
+            <div class="stat-bar-fill xp-bar" style="width: 0%"></div>
+          </div>
+          <div class="stat-text xp-text">0 / 100</div>
+        </div>
+        <div class="hud-level">
+          <span class="level-label">Level:</span>
+          <span class="level-text">1</span>
+        </div>
         <div class="hud-gold" id="hud-gold">
           <span class="gold-icon">💰</span>
           <span class="gold-amount">0</span>
+        </div>
+      </div>
+      <div class="level-up-notification" style="display: none;">
+        <div class="level-up-content">
+          <div class="level-up-title">🎉 LEVEL UP! 🎉</div>
+          <div class="level-up-stats"></div>
         </div>
       </div>
     `;
@@ -48,8 +68,12 @@ export class HUD {
     // Get references to bar elements
     this.healthBar = this.element.querySelector('.health-bar');
     this.manaBar = this.element.querySelector('.mana-bar');
+    this.xpBar = this.element.querySelector('.xp-bar');
     this.healthText = this.element.querySelector('.health-text');
     this.manaText = this.element.querySelector('.mana-text');
+    this.xpText = this.element.querySelector('.xp-text');
+    this.levelText = this.element.querySelector('.level-text');
+    this.levelUpNotification = this.element.querySelector('.level-up-notification');
   }
 
   update(player) {
@@ -74,11 +98,53 @@ export class HUD {
     this.manaBar.style.width = `${Math.max(0, manaPercent)}%`;
     this.manaText.textContent = `${Math.round(player.mana)} / ${player.maxMana}`;
 
+    // Update XP
+    if (player.xp !== undefined && player.xpToNextLevel !== undefined) {
+      const xpPercent = (player.xp / player.xpToNextLevel) * 100;
+      this.xpBar.style.width = `${Math.max(0, xpPercent)}%`;
+      this.xpText.textContent = `${Math.round(player.xp)} / ${player.xpToNextLevel}`;
+    }
+
+    // Update level
+    if (player.level !== undefined && this.levelText) {
+      this.levelText.textContent = player.level;
+    }
+
+    // Show level-up notification
+    if (player.justLeveledUp && this.levelUpNotification) {
+      this.showLevelUp(player.level);
+    }
+
     // Update gold
     const goldAmount = this.element.querySelector('.gold-amount');
     if (goldAmount) {
       goldAmount.textContent = player.gold || 0;
     }
+  }
+
+  showLevelUp(level) {
+    if (!this.levelUpNotification) return;
+
+    // Set notification content
+    const statsDiv = this.levelUpNotification.querySelector('.level-up-stats');
+    if (statsDiv) {
+      statsDiv.innerHTML = `
+        <div>Now Level ${level}</div>
+        <div>+10 Max Health</div>
+        <div>+5 Max Mana</div>
+        <div>+5% Damage</div>
+      `;
+    }
+
+    // Show notification
+    this.levelUpNotification.style.display = 'flex';
+
+    // Hide after 2 seconds
+    setTimeout(() => {
+      if (this.levelUpNotification) {
+        this.levelUpNotification.style.display = 'none';
+      }
+    }, 2000);
   }
 
   hide() {

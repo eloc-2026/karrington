@@ -27,6 +27,14 @@ export class Player extends Entity {
     this.name = 'Skeleton'; // Default name, will be set at game start
     this.creatorName = ''; // Creator name
 
+    // XP & Leveling
+    this.xp = 0;
+    this.level = 1;
+    this.xpToNextLevel = GAME_CONFIG.XP.BASE_XP_TO_LEVEL; // 100 for level 1->2
+    this.levelMultiplier = 1.0; // Damage output multiplier from leveling
+    this.justLeveledUp = false;
+    this.levelUpDisplayTimer = 0;
+
     // Physics - Entity has velocity Vector2, use that
     this.hasGravity = true;
     this.hasCollision = true;
@@ -87,6 +95,14 @@ export class Player extends Entity {
     // Update invulnerability
     this.updateInvulnerability(deltaTime);
 
+    // Update level up notification timer
+    if (this.levelUpDisplayTimer > 0) {
+      this.levelUpDisplayTimer -= deltaTime;
+      if (this.levelUpDisplayTimer <= 0) {
+        this.justLeveledUp = false;
+      }
+    }
+
     // Update powers
     if (this.necromancyPower) {
       this.necromancyPower.update(deltaTime);
@@ -133,12 +149,12 @@ export class Player extends Entity {
     }
 
     // Primary ability - X key
-    if (input.wasKeyPressed(KEYS.SPARE)) {
+    if (input.wasKeyPressed(KEYS.PRIMARY_ATTACK)) {
       this.usePrimaryAbility(game);
     }
 
     // Secondary ability - Z key
-    if (input.wasKeyPressed(KEYS.ATTACK_NECRO)) {
+    if (input.wasKeyPressed(KEYS.SECONDARY_ATTACK)) {
       this.useSecondaryAbility(game);
     }
 
@@ -225,6 +241,16 @@ export class Player extends Entity {
         if (distance < meleeRange && Math.sign(dx) === direction) {
           if (entity.takeDamage) {
             entity.takeDamage(ability.damage, game);
+
+            // Show damage number
+            if (game.renderSystem && game.renderSystem.createTextElement) {
+              game.renderSystem.createTextElement(
+                `-${ability.damage}`,
+                entity.position.x + entity.size.width / 2,
+                entity.position.y,
+                'damage-number'
+              );
+            }
           }
         }
       }
@@ -345,6 +371,34 @@ export class Player extends Entity {
 
   heal(amount) {
     this.health = Math.min(this.health + amount, this.maxHealth);
+  }
+
+  addXP(amount) {
+    this.xp += amount;
+
+    // Check for level up (could be multiple levels at once)
+    while (this.xp >= this.xpToNextLevel) {
+      this.xp -= this.xpToNextLevel;
+      this.levelUp();
+    }
+  }
+
+  levelUp() {
+    this.level++;
+    this.xpToNextLevel = GAME_CONFIG.XP.BASE_XP_TO_LEVEL * this.level;
+
+    // Stat increases
+    this.maxHealth += GAME_CONFIG.XP.HEALTH_PER_LEVEL;
+    this.health = this.maxHealth; // Full heal on level up
+    this.maxMana += GAME_CONFIG.XP.MANA_PER_LEVEL;
+    this.mana = this.maxMana; // Full mana restore on level up
+    this.levelMultiplier += GAME_CONFIG.XP.DAMAGE_MULTIPLIER_PER_LEVEL;
+
+    // Flag for HUD/renderer to pick up
+    this.justLeveledUp = true;
+    this.levelUpDisplayTimer = 2.0; // Show for 2 seconds
+
+    console.log(`🎉 Level Up! Now level ${this.level}`);
   }
 
   die() {

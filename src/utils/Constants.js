@@ -33,6 +33,17 @@ export const GAME_CONFIG = {
     CRIT_MULTIPLIER: 1.5
   },
 
+  XP: {
+    BASE_XP_TO_LEVEL: 100,        // xpToNextLevel = BASE_XP_TO_LEVEL * level
+    HEALTH_PER_LEVEL: 10,
+    MANA_PER_LEVEL: 5,
+    DAMAGE_MULTIPLIER_PER_LEVEL: 0.05,  // 5% increase per level
+    REWARDS: {
+      GOBLIN: 15,
+      ZOMBIE_SLIME: 25
+    }
+  },
+
   ENEMIES: {
     ZOMBIE_SLIME: {
       WIDTH: 32,
@@ -40,7 +51,8 @@ export const GAME_CONFIG = {
       HEALTH: 20,
       DAMAGE: 5,
       SPEED: 100,
-      PATROL_RANGE: 200
+      PATROL_RANGE: 200,
+      XP_REWARD: 25
     },
     FLOATING_SKULL: {
       WIDTH: 40,
@@ -65,7 +77,8 @@ export const GAME_CONFIG = {
       HEALTH: 15,
       DAMAGE: 4,
       SPEED: 140,
-      PATROL_RANGE: 200
+      PATROL_RANGE: 200,
+      XP_REWARD: 15
     },
     VULNERABLE_THRESHOLD: 0.2 // 20% health
   },
@@ -152,13 +165,15 @@ export const KEYS = {
   LEFT: ['ArrowLeft', 'a', 'A'],
   RIGHT: ['ArrowRight', 'd', 'D'],
   JUMP: ['ArrowUp', 'w', 'W', ' '],
-  ATTACK_NECRO: ['q', 'Q', 'z', 'Z'],
+  PRIMARY_ATTACK: ['x', 'X'],
+  SECONDARY_ATTACK: ['z', 'Z'],
+  ATTACK_NECRO: ['q', 'Q'],  // Legacy necromancy key
   SUMMON: ['e', 'E'],
   SOUL_DRAIN: ['r', 'R'],
   SOUL_BURST: ['f', 'F'],
   EXPLOSION: ['t', 'T'],
   INTERACT: ['i', 'I'],
-  SPARE: ['x', 'X'],
+  SPARE: ['x', 'X'],  // Spare enemy key (same as primary attack)
   PAUSE: ['Escape', 'p', 'P']
 };
 

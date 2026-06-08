@@ -9,7 +9,19 @@ export class ThreeJSRenderer {
   constructor(containerElement) {
     this.container = containerElement;
     this.entityMeshes = new Map(); // entity -> THREE.Mesh mapping
+    this.enemyHealthBars = new Map(); // entity -> health bar group mapping
     this.playerClass = 'default'; // Will be set to 'mage', 'tech', or 'graver'
+
+    // Create text overlay container for floating damage numbers
+    this.textOverlay = document.createElement('div');
+    this.textOverlay.style.position = 'absolute';
+    this.textOverlay.style.top = '0';
+    this.textOverlay.style.left = '0';
+    this.textOverlay.style.width = '100%';
+    this.textOverlay.style.height = '100%';
+    this.textOverlay.style.pointerEvents = 'none';
+    this.textOverlay.style.zIndex = '1000';
+    this.container.appendChild(this.textOverlay);
 
     // Create scene
     this.scene = new THREE.Scene();
@@ -1523,57 +1535,243 @@ export class ThreeJSRenderer {
     const isSlime = entity.constructor.name === 'ZombieSlime';
 
     if (isGoblin) {
-      // Goblin - chitinous insect-like creature
-      const bodyGeometry = new THREE.SphereGeometry(0.6, 8, 8);
-      const bodyMaterial = new THREE.MeshStandardMaterial({
-        color: 0x3a4a35,
-        roughness: 0.6,
-        metalness: 0.4
-      });
-      const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-      body.position.y = 0.6;
-      body.castShadow = true;
-      group.add(body);
+      // Goblin - Full detailed model
+      const skinColor = 0x3a5a2a; // Dark green
 
-      // Glowing eyes
+      // Torso (main body)
+      const torsoGeometry = new THREE.BoxGeometry(0.5, 0.7, 0.4);
+      const torsoMaterial = new THREE.MeshStandardMaterial({
+        color: skinColor,
+        roughness: 0.7,
+        metalness: 0.1
+      });
+      const torso = new THREE.Mesh(torsoGeometry, torsoMaterial);
+      torso.position.y = 0.5;
+      torso.castShadow = true;
+      group.add(torso);
+
+      // Head
+      const headGeometry = new THREE.SphereGeometry(0.3, 8, 8);
+      const head = new THREE.Mesh(headGeometry, torsoMaterial);
+      head.position.y = 1.0;
+      head.castShadow = true;
+      group.add(head);
+
+      // Pointed ears
+      const earGeometry = new THREE.ConeGeometry(0.08, 0.2, 6);
+      const earMaterial = new THREE.MeshStandardMaterial({
+        color: skinColor,
+        roughness: 0.7
+      });
+      const leftEar = new THREE.Mesh(earGeometry, earMaterial);
+      leftEar.position.set(-0.25, 1.1, 0);
+      leftEar.rotation.z = -Math.PI / 4;
+      group.add(leftEar);
+
+      const rightEar = new THREE.Mesh(earGeometry, earMaterial);
+      rightEar.position.set(0.25, 1.1, 0);
+      rightEar.rotation.z = Math.PI / 4;
+      group.add(rightEar);
+
+      // Glowing yellow eyes
       const eyeGeometry = new THREE.SphereGeometry(0.08, 6, 6);
       const eyeMaterial = new THREE.MeshStandardMaterial({
         color: 0xffee44,
         emissive: 0xffee44,
-        emissiveIntensity: 1.5
+        emissiveIntensity: 2.0
       });
 
       const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-      leftEye.position.set(-0.2, 0.7, 0.5);
+      leftEye.position.set(-0.1, 1.05, 0.25);
       group.add(leftEye);
 
       const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-      rightEye.position.set(0.2, 0.7, 0.5);
+      rightEye.position.set(0.1, 1.05, 0.25);
       group.add(rightEye);
 
+      // Eye glow light
+      const eyeLight = new THREE.PointLight(0xffee44, 0.3, 2);
+      eyeLight.position.set(0, 1.05, 0.3);
+      group.add(eyeLight);
+
+      // Dark mouth
+      const mouthGeometry = new THREE.BoxGeometry(0.15, 0.05, 0.05);
+      const mouthMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+      const mouth = new THREE.Mesh(mouthGeometry, mouthMaterial);
+      mouth.position.set(0, 0.9, 0.28);
+      group.add(mouth);
+
+      // Arms
+      const armGeometry = new THREE.CylinderGeometry(0.08, 0.08, 0.5, 6);
+      const leftArm = new THREE.Mesh(armGeometry, torsoMaterial);
+      leftArm.position.set(-0.35, 0.5, 0);
+      leftArm.rotation.z = Math.PI / 6;
+      leftArm.castShadow = true;
+      group.add(leftArm);
+
+      const rightArm = new THREE.Mesh(armGeometry, torsoMaterial);
+      rightArm.position.set(0.35, 0.5, 0);
+      rightArm.rotation.z = -Math.PI / 6;
+      rightArm.castShadow = true;
+      group.add(rightArm);
+
+      // Club weapon (in right hand)
+      const clubHandleGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.4, 6);
+      const clubMaterial = new THREE.MeshStandardMaterial({
+        color: 0x4a3a2a,
+        roughness: 0.9
+      });
+      const clubHandle = new THREE.Mesh(clubHandleGeometry, clubMaterial);
+      clubHandle.position.set(0.35, 0.2, 0);
+      group.add(clubHandle);
+
+      const clubHeadGeometry = new THREE.SphereGeometry(0.12, 8, 8);
+      const clubHead = new THREE.Mesh(clubHeadGeometry, clubMaterial);
+      clubHead.position.set(0.35, 0.0, 0);
+      clubHead.castShadow = true;
+      group.add(clubHead);
+
+      // Legs
+      const legGeometry = new THREE.CylinderGeometry(0.08, 0.08, 0.4, 6);
+      const leftLeg = new THREE.Mesh(legGeometry, torsoMaterial);
+      leftLeg.position.set(-0.15, 0.05, 0);
+      leftLeg.castShadow = true;
+      group.add(leftLeg);
+
+      const rightLeg = new THREE.Mesh(legGeometry, torsoMaterial);
+      rightLeg.position.set(0.15, 0.05, 0);
+      rightLeg.castShadow = true;
+      group.add(rightLeg);
+
+      // Feet
+      const footGeometry = new THREE.BoxGeometry(0.12, 0.08, 0.2);
+      const leftFoot = new THREE.Mesh(footGeometry, torsoMaterial);
+      leftFoot.position.set(-0.15, -0.15, 0.05);
+      leftFoot.castShadow = true;
+      group.add(leftFoot);
+
+      const rightFoot = new THREE.Mesh(footGeometry, torsoMaterial);
+      rightFoot.position.set(0.15, -0.15, 0.05);
+      rightFoot.castShadow = true;
+      group.add(rightFoot);
+
     } else if (isSlime) {
-      // Slime - glowing organic blob
-      const bodyGeometry = new THREE.SphereGeometry(0.5, 8, 6);
-      bodyGeometry.scale(1, 0.6, 1); // Squash it
+      // Zombie Slime - Detailed undead blob
+      const slimeColor = 0x884422; // Brown/orange
+      const glowColor = 0xff6622; // Orange glow
+
+      // Main body (larger, semi-transparent)
+      const bodyGeometry = new THREE.SphereGeometry(0.6, 12, 10);
+      bodyGeometry.scale(1, 0.7, 1); // Squash it
       const bodyMaterial = new THREE.MeshStandardMaterial({
-        color: 0x884422,
-        roughness: 0.3,
+        color: slimeColor,
+        roughness: 0.2,
         metalness: 0.1,
-        emissive: 0xff4422,
-        emissiveIntensity: 0.3,
+        emissive: glowColor,
+        emissiveIntensity: 0.2,
         transparent: true,
-        opacity: 0.9
+        opacity: 0.85
       });
       const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-      body.position.y = 0.3;
+      body.position.y = 0.4;
       body.castShadow = true;
       group.add(body);
 
-      // Internal glow
-      const glowLight = new THREE.PointLight(0xff4422, 0.5, 2);
-      glowLight.position.y = 0.3;
+      // Surface bumps (8 random sizes)
+      for (let i = 0; i < 8; i++) {
+        const bumpSize = 0.08 + Math.random() * 0.12;
+        const bumpGeometry = new THREE.SphereGeometry(bumpSize, 6, 6);
+        const bump = new THREE.Mesh(bumpGeometry, bodyMaterial);
+
+        // Random position on surface
+        const angle = (i / 8) * Math.PI * 2;
+        const radius = 0.5;
+        bump.position.set(
+          Math.cos(angle) * radius,
+          0.4 + (Math.random() - 0.5) * 0.3,
+          Math.sin(angle) * radius * 0.5
+        );
+        group.add(bump);
+      }
+
+      // Glowing orange core inside
+      const coreGeometry = new THREE.SphereGeometry(0.15, 8, 8);
+      const coreMaterial = new THREE.MeshStandardMaterial({
+        color: glowColor,
+        emissive: glowColor,
+        emissiveIntensity: 3.0,
+        transparent: true,
+        opacity: 0.9
+      });
+      const core = new THREE.Mesh(coreGeometry, coreMaterial);
+      core.position.y = 0.4;
+      group.add(core);
+
+      // Internal glow light
+      const glowLight = new THREE.PointLight(glowColor, 0.8, 3);
+      glowLight.position.y = 0.4;
       group.add(glowLight);
+
+      // Zombie arm sticking out
+      const armMaterial = new THREE.MeshStandardMaterial({
+        color: 0x6a5a4a, // Decayed flesh color
+        roughness: 0.8
+      });
+
+      // Upper arm
+      const upperArmGeometry = new THREE.CylinderGeometry(0.08, 0.06, 0.3, 6);
+      const upperArm = new THREE.Mesh(upperArmGeometry, armMaterial);
+      upperArm.position.set(0.5, 0.4, 0.1);
+      upperArm.rotation.z = -Math.PI / 3;
+      upperArm.castShadow = true;
+      group.add(upperArm);
+
+      // Forearm
+      const forearmGeometry = new THREE.CylinderGeometry(0.06, 0.05, 0.25, 6);
+      const forearm = new THREE.Mesh(forearmGeometry, armMaterial);
+      forearm.position.set(0.7, 0.25, 0.1);
+      forearm.rotation.z = -Math.PI / 4;
+      forearm.castShadow = true;
+      group.add(forearm);
+
+      // Claw hand (3 fingers)
+      const clawGeometry = new THREE.ConeGeometry(0.03, 0.15, 4);
+      for (let i = 0; i < 3; i++) {
+        const claw = new THREE.Mesh(clawGeometry, armMaterial);
+        claw.position.set(
+          0.82 + (i - 1) * 0.05,
+          0.15,
+          0.1 + (i - 1) * 0.03
+        );
+        claw.rotation.z = Math.PI;
+        claw.castShadow = true;
+        group.add(claw);
+      }
+
+      // Single large eye with pupil
+      const eyeWhiteGeometry = new THREE.SphereGeometry(0.18, 8, 8);
+      const eyeWhiteMaterial = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        roughness: 0.1
+      });
+      const eyeWhite = new THREE.Mesh(eyeWhiteGeometry, eyeWhiteMaterial);
+      eyeWhite.position.set(0, 0.5, 0.5);
+      group.add(eyeWhite);
+
+      // Pupil
+      const pupilGeometry = new THREE.SphereGeometry(0.08, 8, 8);
+      const pupilMaterial = new THREE.MeshBasicMaterial({
+        color: 0x000000
+      });
+      const pupil = new THREE.Mesh(pupilGeometry, pupilMaterial);
+      pupil.position.set(0, 0.5, 0.62);
+      group.add(pupil);
     }
+
+    // Create and attach health bar
+    const healthBar = this.createEnemyHealthBar(entity);
+    group.add(healthBar);
+    this.enemyHealthBars.set(entity, healthBar);
 
     return group;
   }
@@ -1728,6 +1926,106 @@ export class ThreeJSRenderer {
   }
 
   /**
+   * Create floating text element (damage numbers, gold pickups, etc.)
+   */
+  createTextElement(text, x, y, cssClass = 'floating-text') {
+    // Convert game coordinates to screen coordinates using camera projection
+    const vector = new THREE.Vector3(
+      (x - 400) / 40,
+      -(y - 300) / 40,
+      0
+    );
+    vector.project(this.camera);
+
+    // Convert to screen space
+    const screenX = (vector.x * 0.5 + 0.5) * this.renderer.domElement.width;
+    const screenY = (-(vector.y) * 0.5 + 0.5) * this.renderer.domElement.height;
+
+    // Create text element
+    const textElement = document.createElement('div');
+    textElement.className = cssClass;
+    textElement.textContent = text;
+    textElement.style.position = 'absolute';
+    textElement.style.left = `${screenX}px`;
+    textElement.style.top = `${screenY}px`;
+    textElement.style.transform = 'translate(-50%, -50%)';
+
+    this.textOverlay.appendChild(textElement);
+
+    // Animate upward and fade out over 1 second
+    setTimeout(() => textElement.remove(), 1000);
+  }
+
+  /**
+   * Create health bar for enemy
+   */
+  createEnemyHealthBar(entity) {
+    const group = new THREE.Group();
+
+    // Dark background bar
+    const bgGeometry = new THREE.PlaneGeometry(1.0, 0.08);
+    const bgMaterial = new THREE.MeshBasicMaterial({
+      color: 0x000000,
+      transparent: true,
+      opacity: 0.6,
+      side: THREE.DoubleSide
+    });
+    const bgBar = new THREE.Mesh(bgGeometry, bgMaterial);
+    group.add(bgBar);
+
+    // Green health fill
+    const fillGeometry = new THREE.PlaneGeometry(1.0, 0.06);
+    const fillMaterial = new THREE.MeshBasicMaterial({
+      color: 0x00ff00,
+      transparent: true,
+      opacity: 0.9,
+      side: THREE.DoubleSide
+    });
+    const fillBar = new THREE.Mesh(fillGeometry, fillMaterial);
+    fillBar.position.z = 0.01; // Slightly in front
+    group.add(fillBar);
+
+    // Store references
+    group.userData.bgBar = bgBar;
+    group.userData.fillBar = fillBar;
+    group.userData.fillMaterial = fillMaterial;
+
+    // Position above enemy (will be updated in updateEntity)
+    group.position.y = 1.5;
+    group.visible = false; // Hidden until enemy takes damage
+
+    return group;
+  }
+
+  /**
+   * Update enemy health bar
+   */
+  updateEnemyHealthBar(entity, healthBarGroup) {
+    if (!entity.health || !entity.maxHealth) return;
+
+    const healthPercent = entity.health / entity.maxHealth;
+
+    // Update fill bar width (scale from center)
+    const fillBar = healthBarGroup.userData.fillBar;
+    fillBar.scale.x = Math.max(0, healthPercent);
+
+    // Update color based on health percentage
+    const fillMaterial = healthBarGroup.userData.fillMaterial;
+    if (healthPercent > 0.5) {
+      fillMaterial.color.setHex(0x00ff00); // Green
+    } else if (healthPercent > 0.25) {
+      fillMaterial.color.setHex(0xffff00); // Yellow
+    } else {
+      fillMaterial.color.setHex(0xff0000); // Red
+    }
+
+    // Show health bar if damaged
+    if (healthPercent < 1.0) {
+      healthBarGroup.visible = true;
+    }
+  }
+
+  /**
    * Update entity mesh position and state
    */
   updateEntity(entity) {
@@ -1761,6 +2059,12 @@ export class ThreeJSRenderer {
       entity.showMeleeSlash = false;
       this.createMeleeSlashEffect(entity);
     }
+
+    // Update health bar for enemies
+    if (entity.type === 'enemy' && this.enemyHealthBars.has(entity)) {
+      const healthBar = this.enemyHealthBars.get(entity);
+      this.updateEnemyHealthBar(entity, healthBar);
+    }
   }
 
   /**
@@ -1772,6 +2076,20 @@ export class ThreeJSRenderer {
       this.scene.remove(mesh);
       this.entityMeshes.delete(entity);
 
+      // Recursively dispose all children in group
+      if (mesh.children && mesh.children.length > 0) {
+        for (const child of mesh.children) {
+          if (child.geometry) child.geometry.dispose();
+          if (child.material) {
+            if (Array.isArray(child.material)) {
+              child.material.forEach(mat => mat.dispose());
+            } else {
+              child.material.dispose();
+            }
+          }
+        }
+      }
+
       // Dispose geometry and materials
       if (mesh.geometry) mesh.geometry.dispose();
       if (mesh.material) {
@@ -1781,6 +2099,11 @@ export class ThreeJSRenderer {
           mesh.material.dispose();
         }
       }
+    }
+
+    // Clean up health bar
+    if (this.enemyHealthBars.has(entity)) {
+      this.enemyHealthBars.delete(entity);
     }
   }
 
